@@ -1,0 +1,52 @@
+var shellCommand = 'shell\n';
+var croshName = 'crosh';
+
+window.onload = function() {
+  Crosh(null);
+  commandTest();
+}
+
+function Crosh(argv) {
+  this.argv_ = argv;
+  this.io = null;
+  this.keyboard_ = false;
+  this.pid_ = -1;
+}
+
+function commandTest() {
+  chrome.terminalPrivate.onProcessOutput.addListener(processListener);
+
+  chrome.terminalPrivate.openTerminalProcess(croshName, (pid) => {
+    if (pid < 0) {
+      window.alert("error!");
+    }
+
+    this.pid_ = pid;
+
+    var cmd1 = 'shell\n';
+    var cmd2 = 'touch ~/Downloads/test.txt\n';
+
+    chrome.terminalPrivate.sendInput(pid, cmd1,
+      function (r1) {
+        window.alert(r1);
+      }
+    );
+
+    chrome.terminalPrivate.sendInput(pid, cmd2,
+      function (r2) {
+        window.alert(r2);
+      }
+    );
+
+    chrome.terminalPrivate.closeTerminalProcess(
+      this.pid_,
+      function(result) {
+        window.alert(result);
+      }
+    );
+  });
+}
+
+function processListener(pid, type, text){
+  window.alert(text);
+}
